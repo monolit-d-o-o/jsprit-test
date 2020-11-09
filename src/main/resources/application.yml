@@ -1,0 +1,14 @@
+server:
+  port: 8888
+keycloak:  
+  realm: mopti
+  auth-server-url: https://perpro.sledenje.com:8443/auth
+  ssl-required : none
+  bearer-only : true
+  resource: api
+  cors: true
+  enabled: true
+  security-constraints[0]:
+    -authRoles[0]: user
+    -securityCollections[0]:
+      -patterns[0]: /api/test/hvrp/*

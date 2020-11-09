@@ -9,6 +9,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        <keycloak.version>5.0.0</keycloak.version>
     </properties>
     <dependencies>
         <dependency>
@@ -16,5 +17,22 @@
             <artifactId>jsprit-core</artifactId>
             <version>1.8</version>
         </dependency>
+       
+        <dependency>
+            <groupId>org.keycloak</groupId>
+            <artifactId>keycloak-spring-boot-starter</artifactId>
+            <version>${keycloak.version}</version>
+        </dependency>
     </dependencies>
+    <dependencyManagement>
+    <dependencies>
+       <dependency>
+          <groupId>org.keycloak.bom</groupId>
+          <artifactId>keycloak-adapter-bom</artifactId>
+          <version>${keycloak.version}</version>
+          <type>pom</type>
+          <scope>import</scope>
+       </dependency>
+    </dependencies>
+    </dependencyManagement>
 </project>
