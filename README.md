@@ -24,6 +24,8 @@ http://localhost:8888/api/test/hvrp/result/bad4a5f4-a674-415c-8e55-01ab95458667
 
 
 
-settings 
+settings keycloak on
 
-application.yaml
+application.yaml 
+keycloak
+  enabled: true
