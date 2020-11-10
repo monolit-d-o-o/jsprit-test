@@ -1,14 +1,29 @@
 server:
   port: 8888
 keycloak:  
-  realm: mopti
-  auth-server-url: https://perpro.sledenje.com:8443/auth
-  ssl-required : none
-  bearer-only : true
-  resource: api
-  cors: true
-  enabled: true
-  security-constraints[0]:
-    -authRoles[0]: user
-    -securityCollections[0]:
-      -patterns[0]: /api/test/hvrp/*
+    realm: omniopti
+    auth-server-url: https://perpro.sledenje.com:8443/auth
+    #auth-server-url: http://192.168.0.26:8080/auth
+    ssl-required: none
+    use-resource-role-mappings: false
+    bearer-only: true
+    resource: api
+    enabled: true
+    credentials:
+        secret: 6e1bb99f-75a8-46be-ae49-e55d4b585e42
+    security-constraints:
+    - auth-roles:
+      - basic
+      security-collections:
+      - name: basic
+        patterns:
+        - /api/test/basic/*
+    - auth-roles: 
+      - heavy
+      security-collections:
+      - name: heavy
+        patterns:
+        - /api/test/heavy/*
+logging:
+  level:
+    org.apache.catalina.realm: DEBUG 

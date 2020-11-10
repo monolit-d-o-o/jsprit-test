@@ -8,6 +8,7 @@ package com.pixi.jsprittest.api;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.pixi.jsprittest.service.TestService;
 import java.util.concurrent.ExecutionException;
+import javax.annotation.security.RolesAllowed;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,9 +26,12 @@ public class TestApi
     @Autowired
     TestService service;
     
-    @GetMapping("/hvrp/{numclients}")
-    public  String doHVRP(@PathVariable int numclients) throws InterruptedException, ExecutionException
+  
+    @RolesAllowed("heavy")
+    @GetMapping("/heavy/hvrp/{numclients}")
+    public  String doHVRP( @PathVariable int numclients) throws InterruptedException, ExecutionException
     {
+     
         return service.execHVRP(numclients);
     }  
     

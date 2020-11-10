@@ -1,3 +1,4 @@
+
 login [openid-connect]
 
 curl -X POST 'https://perpro.sledenje.com:8443/auth/realms/omniopti/protocol/openid-connect/token' \
