@@ -9,6 +9,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.pixi.jsprittest.service.TestService;
 import java.util.concurrent.ExecutionException;
 import javax.annotation.security.RolesAllowed;
+import javax.servlet.http.HttpServletRequest;
+import org.keycloak.KeycloakSecurityContext;
+import org.keycloak.adapters.RefreshableKeycloakSecurityContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,7 +29,26 @@ public class TestApi
     @Autowired
     TestService service;
     
+    @Autowired 
+    HttpServletRequest sr;
+    
   
+    @GetMapping("/hvrp/keycloakinfo")
+    public String getkcinfo() throws JsonProcessingException
+    {
+       RefreshableKeycloakSecurityContext scontext = (RefreshableKeycloakSecurityContext) sr.getAttribute(KeycloakSecurityContext.class.getName());
+       if (scontext != null)
+       {    
+            String kcsub =  scontext.getToken().getSubject();
+            String kcpus =  scontext.getToken().getPreferredUsername();
+            return  "subject:"+kcsub+ " puname:"+kcpus;
+       }
+       else
+       {
+           return "RefreshableKeycloakSecurityContext null !";
+       }    
+    }    
+    
     @RolesAllowed("heavy")
     @GetMapping("/heavy/hvrp/{numclients}")
     public  String doHVRP( @PathVariable int numclients) throws InterruptedException, ExecutionException
