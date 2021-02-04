@@ -6,10 +6,15 @@
 package com.pixi.jsprittest.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.pixi.jsprittest.service.MqttService;
 import com.pixi.jsprittest.service.TestService;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpServletRequest;
+import org.eclipse.paho.client.mqttv3.MqttException;
 import org.keycloak.KeycloakSecurityContext;
 import org.keycloak.adapters.RefreshableKeycloakSecurityContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +33,9 @@ public class TestApi
 {
     @Autowired
     TestService service;
+    
+    @Autowired
+    MqttService mqttcli;
     
     @Autowired 
     HttpServletRequest sr;
@@ -79,5 +87,38 @@ public class TestApi
     public String getResult(@PathVariable  String id) throws JsonProcessingException
     {
        return  service.result(id);
-    }     
+    }  
+    
+    @GetMapping("/hvrp/mqtt/{nummsgs}")
+    public String testMqtt(@PathVariable  int nummsgs) throws JsonProcessingException
+    {
+        int statsok = 0;
+        int statfail = 0;
+            
+        try {
+            
+            mqttcli.connnect("tcp://192.168.0.140:1883", UUID.randomUUID().toString());
+            for (int a = 0; a < nummsgs ; a++) 
+            {
+                try {
+                    String uuid = UUID.randomUUID().toString();
+                    mqttcli.subscribe(uuid);
+                    mqttcli.sendMsg(uuid, "msg:"+uuid);
+                    statsok++;
+                    
+                }
+                catch (MqttException ex)
+                {
+                    Logger.getLogger(TestApi.class.getName()).log(Level.SEVERE, null, ex);
+                    statfail ++;
+                }
+            }
+            mqttcli.bye();
+          
+        } catch (MqttException ex) {
+            Logger.getLogger(TestApi.class.getName()).log(Level.SEVERE, null, ex);
+            statfail ++;
+        }
+        return "done ok" +  statsok + " !ok= "+ statfail;
+    }  
 }
