@@ -18,6 +18,7 @@ import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
@@ -47,6 +48,7 @@ public class TestService
         
     }        
     
+   
     @PostConstruct
     public void init() {
        Logger.getLogger(TestService.class.getName()).info("task queue started --");

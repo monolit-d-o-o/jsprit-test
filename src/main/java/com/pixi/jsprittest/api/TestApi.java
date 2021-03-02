@@ -6,12 +6,16 @@
 package com.pixi.jsprittest.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.pixi.jsprittest.listeners.ICalcEvents;
+import com.pixi.jsprittest.service.CalculatorService;
 import com.pixi.jsprittest.service.MqttService;
 import com.pixi.jsprittest.service.TestService;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpServletRequest;
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -40,7 +44,14 @@ public class TestApi
     @Autowired 
     HttpServletRequest sr;
     
+    @Autowired 
+    CalculatorService  cs;
+    
   
+    ICalcEvents myeventListener;
+    
+   
+    
     @GetMapping("/hvrp/keycloakinfo")
     public String getkcinfo() throws JsonProcessingException
     {
@@ -89,6 +100,14 @@ public class TestApi
        return  service.result(id);
     }  
     
+    @GetMapping("/hvrp/sumcalc/{a}/{b}")
+    public int sum(@PathVariable  int a , @PathVariable  int b) throws JsonProcessingException
+    {
+       return  cs.sum(a, b);
+    }  
+    
+    
+    
     @GetMapping("/hvrp/mqtt/{nummsgs}")
     public String testMqtt(@PathVariable  int nummsgs) throws JsonProcessingException
     {
@@ -120,5 +139,47 @@ public class TestApi
             statfail ++;
         }
         return "done ok" +  statsok + " !ok= "+ statfail;
-    }  
+    }
+    
+  
+    
+    @PostConstruct
+    public void init()
+    {
+        Logger.getLogger(TestApi.class.getName()).info("Listener on  ! let test mqtt");
+        try {
+            mqttcli.subscribe("calculator");
+        } catch (MqttException ex) {
+            Logger.getLogger(TestApi.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        cs.setListener(new ICalcEvents() {
+            @Override
+            public void onSum(int result, int a, int b) 
+            {
+                try 
+                {
+                    Logger.getLogger(TestApi.class.getName()).info("on sum:"+" input a="+a + "  input b="+b + "  rezult="+result);
+                    mqttcli.sendMsg("calculator", "on sum:"+" input a="+a + "  input b="+b + "  rezult="+result);
+                } 
+                catch (MqttException ex) 
+                {
+                    Logger.getLogger(TestApi.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+
+            @Override
+            public void numOfSumOperations(int c) 
+            {
+                 try 
+                {
+                    Logger.getLogger(TestApi.class.getName()).log(Level.INFO, "operation counter:{0}", c+"");
+                    mqttcli.sendMsg("calculator", "operation counter:"+c);
+                } 
+                catch (MqttException ex) 
+                {
+                    Logger.getLogger(TestApi.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        });
+    }        
 }

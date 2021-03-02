@@ -5,8 +5,12 @@
  */
 package com.pixi.jsprittest.service;
 
+import com.pixi.jsprittest.api.TestApi;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttClient;
@@ -25,7 +29,7 @@ public class MqttService implements MqttCallback
     public MqttService()
     {
         
-       
+      
    
     }        
     
@@ -76,12 +80,48 @@ public class MqttService implements MqttCallback
 
     @Override
     public void messageArrived(String string, MqttMessage mm) throws Exception {
-          Logger.getLogger(MqttService.class.getName()).log(Level.INFO, string+":"+mm.toString());
+          Logger.getLogger(MqttService.class.getName()).log(Level.INFO, "topic="+string+":"+mm.toString());
     }
 
     @Override
     public void deliveryComplete(IMqttDeliveryToken imdt) {
        
     }
+    
+    @PostConstruct
+    public void init()
+    {
+        Logger.getLogger(TestApi.class.getName()).info("Client connected to net !");
+        try 
+        {
+            connnect("tcp://192.168.0.140:1883", UUID.randomUUID().toString());
+            
+        } 
+        catch (MqttException ex) 
+        {
+            Logger.getLogger(TestApi.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        Runtime.getRuntime().addShutdownHook(new Thread(){
+            @Override
+            public void run() {
+                MqttService.this.onDestroy();
+            }
+       
+            
+        });
+    }    
+    
+ 
+    public void onDestroy()
+    {
+        Logger.getLogger(TestApi.class.getName()).info("by bye mqttcli !");
+        try 
+        {
+           bye();
+        } catch (MqttException ex) {
+            Logger.getLogger(TestApi.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }        
     
 }
